@@ -12,14 +12,14 @@ and CI. Accounts, roles, and the AI pipeline arrive in later phases.
 
 ## Stack
 
-| Concern | Choice |
-|---|---|
-| Language | Python 3.12+ |
-| Framework | FastAPI (ASGI, served by uvicorn) |
+| Concern               | Choice                                                          |
+|-----------------------|-----------------------------------------------------------------|
+| Language              | Python 3.12+                                                    |
+| Framework             | FastAPI (ASGI, served by uvicorn)                               |
 | Packaging / lock file | [uv](https://docs.astral.sh/uv/) — `pyproject.toml` + `uv.lock` |
-| Lint & format | ruff |
-| Tests | pytest (via `fastapi.testclient`) |
-| Container | `python:3.12-slim`, non-root user |
+| Lint & format         | ruff                                                            |
+| Tests                 | pytest (via `fastapi.testclient`)                               |
+| Container             | `python:3.12-slim`, non-root user                               |
 
 ## Prerequisites
 
@@ -60,12 +60,12 @@ To override, copy the template and edit it:
 cp .env.example .env
 ```
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `TAWI_ENVIRONMENT` | `local` | One of `local`, `ci`, `staging`, `production`. Reported by `/health`. |
-| `TAWI_HOST` | `0.0.0.0` | Bind address. |
-| `TAWI_PORT` | `8000` | Bind port. |
-| `TAWI_LOG_LEVEL` | `info` | uvicorn log level. |
+| Variable           | Default  | Purpose                                                               |
+|--------------------|----------|-----------------------------------------------------------------------|
+| `TAWI_ENVIRONMENT` | `local`  | One of `local`, `ci`, `staging`, `production`. Reported by `/health`. |
+| `TAWI_HOST`        | `0.0.0.0`| Bind address.                                                         |
+| `TAWI_PORT`        | `8000`   | Bind port.                                                            |
+| `TAWI_LOG_LEVEL`   | `info`   | uvicorn log level.                                                    |
 
 Never commit a real `.env` — it is git-ignored. `.env.example` is the only committed template.
 
@@ -90,9 +90,9 @@ unprivileged user, and declares a `HEALTHCHECK` against `/health`.
 
 ## API
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/health` | Liveness probe. `200` with `{status, service, version, environment}`. |
+| Method | Path      | Description                                                           |
+|--------|-----------|-----------------------------------------------------------------------|
+| `GET`  | `/health` | Liveness probe. `200` with `{status, service, version, environment}`. |
 
 ## Continuous integration
 
@@ -107,7 +107,7 @@ in this README and nothing else.
 
 ## Layout
 
-```
+```text
 app/
   __init__.py     # package version
   config.py       # environment-backed settings
