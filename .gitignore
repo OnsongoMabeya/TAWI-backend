@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# Local configuration — never commit real secrets; .env.example is the template
+.env
+.env.local
+
+# macOS
+.DS_Store
