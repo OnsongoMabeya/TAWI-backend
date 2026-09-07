@@ -120,6 +120,73 @@ uv.lock           # pinned, committed dependency lock file
 .env.example
 ```
 
+## Roadmap
+
+Only the work owned by **this** repo is listed. Item numbers refer to `TAWI-Development-Phases.md`.
+Each phase is a separate commit here, prefixed with its phase number, and a phase is not done until
+its exit gate is met.
+
+- [x] **Phase 1 — Repo scaffolding & CI baseline** (1.2, 1.5–1.7, 1.10)
+      FastAPI skeleton, `GET /health`, Dockerfile, lock file, CI, this README.
+
+- [ ] **Phase 2 — Accounts & roles** *(backend-only phase; the mobile repos are untouched)*
+  - 2.2 User model: id, role, linked accounts (child ↔ parent, child ↔ therapist), email/password
+    auth with refresh tokens
+  - 2.3 Consent fields: COPPA/GDPR-style consent timestamp, data retention preference
+  - 2.4 Role-based access middleware enforcing the PRD's permission matrix
+  - 2.5 CRUD: account creation, login, link Caregiver to child, link Therapist to adult user
+  - 2.6–2.8 Tests: password hashing, token issue/refresh, role checks (positive **and** negative),
+    linked-caregiver integration flow, rejection of expired/invalid tokens on every protected route
+  - *Exit gate 2.9: the permission matrix is enforced **and** covered by automated tests*
+
+- [ ] **Phase 3 — AI pipeline (server-side MVP)** *(backend-only phase)*
+  - 3.2 Whisper-based speech-to-text for English and Swahili
+  - 3.3 Noise suppression as an audio pre-processing step
+  - 3.4 Decide and **document** the phoneme-enhancement approach (spectral emphasis vs.
+    model-based correction) before building it, then implement server-side
+  - 3.5 `POST /process-audio` → `{ transcript, enhanced_audio_url, confidence }`
+  - 3.6–3.8 Tests: WER benchmark on Kenyan-accented English/Swahili (tracked, not pass/fail),
+    latency budget, output stability across repeated runs
+  - *Exit gate 3.9: WER baseline documented; endpoint stable under repeated calls*
+
+- [ ] **Phase 4 — Mobile foundations**
+      No build work here, but this repo is a dependency: both apps need a reachable
+      `/process-audio` (local or staging URL) plus Phase 2 auth to complete their round trip (4.1, 4.4).
+
+- [ ] **Phase 5 — Real-time mode**
+  - 5.2 Move audio transport to streaming (WebSocket or gRPC streaming) with chunked inference so
+    partial transcripts return incrementally
+  - 5.6 End-to-end latency target (~1s) measured across all three repos — isolate the culprit
+    before fixing, since a failure can originate in any of them
+
+- [ ] **Phase 6 — Offline / on-device mode**
+  - 6.5 Sync/reconciliation endpoint for queued offline sessions to upload once connectivity returns
+
+- [ ] **Phase 7 — Accessibility & consent hardening**
+  - 7.6 Account/data deletion endpoint; retention policy enforced server-side
+  - 7.10 Tests: a minor account cannot be created without guardian consent captured server-side;
+    a deletion request actually removes data (verified in the database, not just the UI)
+
+- [ ] **Phase 8 — Caregiver/therapist dashboards & sharing**
+  - 8.4 Report generation endpoint; sharing-permission model with access scope and expiry
+  - 8.6 Test: a shared link exposes only what was explicitly shared, and expires/revokes correctly
+
+- [ ] **Phase 9 — Async mode & dialect expansion**
+  - 9.2 Async (non-streaming) processing for the review flow
+  - 9.4 Dialect coverage beyond English/Swahili, per a language-priority list
+  - 9.7 Test: each new dialect meets the Phase 3 WER bar before it ships
+
+- [ ] **Phase 10 — Monetization & entitlements**
+  - 10.2 Entitlement service defining which features are Pro-gated
+  - 10.5 Test: a free-tier account cannot reach Pro-gated endpoints **via direct API calls** —
+    never trust the client
+
+- [ ] **Phase 11 — Beta hardening & launch readiness**
+  - 11.2 Full end-to-end regression pass with the mobile repos
+  - 11.4 Privacy-respecting crash reporting and analytics, consistent with Phase 7 consent settings
+  - 11.6 Regression suite green independently here
+  - 11.8 Pilot dry run (5–10 users) with no data loss
+
 ## Project docs
 
 The PRD (`TAWI-Redesign-PRD.md`) and the phased plan (`TAWI-Development-Phases.md`) live in the
