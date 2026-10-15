@@ -37,7 +37,8 @@ async def me(user: CurrentUser):
 async def create_link_code(
     body: LinkCodeRequest, user: CurrentUser, db: DbSession, settings: CurrentSettings
 ):
-    """A listener mints a one-time pairing code to show (or read) to whoever is meant to gain access. The plaintext code is returned once and never stored."""
+    """A listener mints a one-time pairing code to show (or read) to whoever 
+    is meant to gain access. The plaintext code is returned once and never stored."""
     allowed, reason = can_generate_link_code(user, body.grants)
     if not allowed:
         raise HTTPException(status.HTTP_403_FORBIDDEN, reason)
@@ -113,8 +114,10 @@ async def list_listener_sessions(
     db: DbSession,
     listener: Annotated[User, Depends(require_can_read_listener)],
 ):
-    """A listener's session history, readable only via the permission matrix (see app/permissions.py). Unauthorised requesters get 404, not 403, so the
-    existence of an account is not leakable. Sessions are only ever populated by later phases; the list is empty in Phase 2, but the access control is real."""
+    """A listener's session history, readable only via the permission matrix 
+    (see app/permissions.py). Unauthorised requesters get 404, not 403, so the
+    existence of an account is not leakable. Sessions are only ever populated 
+    by later phases; the list is empty in Phase 2, but the access control is real."""
     result = await db.execute(
         select(Session)
         .where(Session.owner_id == listener.id, Session.deleted_at.is_(None))

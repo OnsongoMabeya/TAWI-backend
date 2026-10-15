@@ -53,7 +53,7 @@ def can_read_listener_sessions(
         - a linked caregiver of that listener (PRD: caregivers manage child accounts);
         - a linked therapist only if the listener is an adult (PRD rule 3;
             phase item 2.5: therapists link to adult users only).
-            The DOB check is repeated here — fail closed even if the link table were ever corrupted."""
+        The DOB check is repeated here — fail closed even if the link table were ever corrupted."""
     if requester.id == listener.id:
         return True
     if requester.role == UserRole.CAREGIVER:
@@ -82,7 +82,8 @@ def can_generate_link_code(
 def can_redeem_link_code(
     redeemer: User, grants_kind: LinkKind, listener: User, *, today: date | None = None
 ) -> tuple[bool, str | None]:
-    """Re-deem checks, enforced again at the redeem endpoint — codes must not be a way to smuggle an invalid pairing past the generation rules."""
+    """Re-deem checks, enforced again at the redeem endpoint — codes must 
+    not be a way to smuggle an invalid pairing past the generation rules."""
     expected = {LinkKind.CAREGIVER: UserRole.CAREGIVER, LinkKind.THERAPIST: UserRole.THERAPIST}[
         grants_kind
     ]
