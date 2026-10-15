@@ -50,8 +50,9 @@ def can_read_listener_sessions(
 ) -> bool:
     """Rule set for reading a listener's session list:
         - the listener themself (any age);
-        - a linked caregiver of that listener (PRD caregivers manage child accounts);
-        - a linked therapist **only if the listener is an adult** (PRD rule 3 + phase item 2.5: therapists link to *adult* users only). 
+        - a linked caregiver of that listener (PRD: caregivers manage child accounts);
+        - a linked therapist only if the listener is an adult (PRD rule 3;
+            phase item 2.5: therapists link to adult users only).
             The DOB check is repeated here — fail closed even if the link table were ever corrupted."""
     if requester.id == listener.id:
         return True
