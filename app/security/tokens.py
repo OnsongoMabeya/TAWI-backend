@@ -68,7 +68,7 @@ def decode_access_token(token: str, settings: Settings) -> AccessTokenClaims:
 
 
 def generate_refresh_token() -> str:
-    """Opaque, URL-safe, high-entropy refresh token. Never a JWT — JWT refresh 
+    """Opaque, URL-safe, high-entropy refresh token. Never a JWT — JWT refresh
     tokens can't be revoked without a denylist, and we want plain revocation."""
     return secrets.token_urlsafe(48)  # 384 bits of entropy
 
@@ -78,7 +78,7 @@ def hash_token(token: str) -> str:
 
 
 def hash_pairing_code(code: str) -> str:
-    """Pairing codes get the same treatment as refresh tokens: stored hashed, 
+    """Pairing codes get the same treatment as refresh tokens: stored hashed,
     so the codes table is useless to anyone who reads it."""
     return hash_token(code.upper().strip())
 
@@ -114,7 +114,7 @@ async def rotate_refresh_token(
 ) -> tuple[User, RefreshToken, str]:
     """Validate a presented refresh token and rotate it.
 
-    Raises RefreshTokenError for every failure mode. Reuse of an already-rotated 
+    Raises RefreshTokenError for every failure mode. Reuse of an already-rotated
     token revokes the whole family — that is the theft-detection signal."""
     result = await db.execute(
         select(RefreshToken).where(RefreshToken.token_hash == hash_token(presented))

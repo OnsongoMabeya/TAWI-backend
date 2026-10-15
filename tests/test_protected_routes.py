@@ -79,11 +79,13 @@ def _variants(client, tokens):
         "token for a deleted/unknown user": ghost_user,
     }
 
+
 @pytest.mark.parametrize("method,path,body", PROTECTED_ROUTES)
 def test_no_token_401(client, method, path, body):
     response = client.request(method, path, json=body)
     assert response.status_code == 401
     assert "www-authenticate" in {k.lower() for k in response.headers}
+
 
 @pytest.mark.parametrize("method,path,body", PROTECTED_ROUTES + [("GET", "sessions", None)])
 @pytest.mark.parametrize(
@@ -96,7 +98,6 @@ def test_no_token_401(client, method, path, body):
         "token for a deleted/unknown user",
     ],
 )
-
 def test_bad_tokens_401(client, variant, method, path, body):
     tokens = _register(client, f"{variant.replace(' ', '-')[:20]}-{uuid.uuid4().hex[:6]}@sweep.dev")
     if path == "sessions":
@@ -104,6 +105,7 @@ def test_bad_tokens_401(client, variant, method, path, body):
     headers = {"Authorization": f"Bearer {_variants(client, tokens)[variant]}"}
     response = client.request(method, path, json=body, headers=headers)
     assert response.status_code == 401
+
 
 def test_not_bearer_scheme_401(client):
     tokens = _register(client, f"scheme-{uuid.uuid4().hex[:6]}@sweep.dev")

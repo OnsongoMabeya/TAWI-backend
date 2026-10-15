@@ -27,8 +27,8 @@ def _settings(**overrides) -> Settings:
 
 
 def tamper_signature(token: str) -> str:
-    """Flip a character from the *middle* of the signature. The last base64url 
-    character's unused pad bits are ignored on decode, so editing there can 
+    """Flip a character from the *middle* of the signature. The last base64url
+    character's unused pad bits are ignored on decode, so editing there can
     decode back to the same bytes — flipping mid-string cannot."""
     body, _, signature = token.rpartition(".")
     mid = len(signature) // 2
@@ -124,7 +124,7 @@ async def test_refresh_issue_rotate_revoke(db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_replay_of_rotated_token_revokes_whole_family(db: AsyncSession):
-    """Rotation-reuse detection: re-presenting an already-rotated token nukes 
+    """Rotation-reuse detection: re-presenting an already-rotated token nukes
     every live token in its family (the theft signal)."""
     settings, user = _settings(), await _persist_user(db)
 

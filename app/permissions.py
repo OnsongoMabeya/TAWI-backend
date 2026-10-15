@@ -49,11 +49,11 @@ def can_read_listener_sessions(
     requester: User, listener: User, links: list[UserLink], *, today: date | None = None
 ) -> bool:
     """Rule set for reading a listener's session list:
-        - the listener themself (any age);
-        - a linked caregiver of that listener (PRD: caregivers manage child accounts);
-        - a linked therapist only if the listener is an adult (PRD rule 3;
-            phase item 2.5: therapists link to adult users only).
-        The DOB check is repeated here — fail closed even if the link table were ever corrupted."""
+    - the listener themself (any age);
+    - a linked caregiver of that listener (PRD: caregivers manage child accounts);
+    - a linked therapist only if the listener is an adult (PRD rule 3;
+        phase item 2.5: therapists link to adult users only).
+    The DOB check is repeated here — fail closed even if the link table were ever corrupted."""
     if requester.id == listener.id:
         return True
     if requester.role == UserRole.CAREGIVER:
@@ -69,9 +69,9 @@ def can_generate_link_code(
     user: User, grants_kind: LinkKind, *, today: date | None = None
 ) -> tuple[bool, str | None]:
     """Who may mint which pairing codes.
-        - only listeners grant access to their own data (rules 1 and 2 + enumeration defence);
-        - a minor listener may only hand out caregiver codes;
-        - an adult listener may hand out caregiver or therapist codes."""
+    - only listeners grant access to their own data (rules 1 and 2 + enumeration defence);
+    - a minor listener may only hand out caregiver codes;
+    - an adult listener may hand out caregiver or therapist codes."""
     if user.role != UserRole.LISTENER:
         return False, "only listener accounts can grant access to their data"
     if grants_kind == LinkKind.THERAPIST and not is_adult(user.date_of_birth, today=today):
@@ -82,7 +82,7 @@ def can_generate_link_code(
 def can_redeem_link_code(
     redeemer: User, grants_kind: LinkKind, listener: User, *, today: date | None = None
 ) -> tuple[bool, str | None]:
-    """Re-deem checks, enforced again at the redeem endpoint — codes must 
+    """Re-deem checks, enforced again at the redeem endpoint — codes must
     not be a way to smuggle an invalid pairing past the generation rules."""
     expected = {LinkKind.CAREGIVER: UserRole.CAREGIVER, LinkKind.THERAPIST: UserRole.THERAPIST}[
         grants_kind

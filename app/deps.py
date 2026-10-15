@@ -28,7 +28,7 @@ async def get_current_user(
     db: DbSession,
     settings: CurrentSettings,
 ) -> User:
-    """Resolve the bearer token to a live user. Every 401 takes this one path 
+    """Resolve the bearer token to a live user. Every 401 takes this one path
     so expired, forged, mistyped and absent tokens are indistinguishable."""
     if credentials is None:
         raise UNAUTHORIZED
@@ -48,7 +48,7 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 async def require_can_read_listener(
     listener_id: uuid.UUID, requester: CurrentUser, db: DbSession
 ) -> User:
-    """Protects /users/{listener_id}/... routes. Returns 404 (not 403) when the 
+    """Protects /users/{listener_id}/... routes. Returns 404 (not 403) when the
     requester has no rights, so the existence of the target account is not leakable."""
     listener = await db.get(User, listener_id)
     if listener is None:
