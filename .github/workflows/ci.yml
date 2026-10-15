@@ -17,6 +17,23 @@ jobs:
   lint-and-test:
     name: Lint and test
     runs-on: ubuntu-latest
+    env:
+      # Tests always run against real Postgres — see tests/conftest.py.
+      TAWI_TEST_DATABASE_URL: postgresql+asyncpg://tawi:tawi@127.0.0.1:5432/tawi_test
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: tawi
+          POSTGRES_PASSWORD: tawi
+          POSTGRES_DB: tawi
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tawi -d tawi"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 20
     steps:
       - uses: actions/checkout@v7
 
@@ -37,6 +54,8 @@ jobs:
       - name: Check formatting (ruff)
         run: uv run ruff format --check .
 
+      # No explicit migration step: the suite's session fixture resets the schema
+      # and runs `alembic upgrade head` from scratch on every CI run.
       - name: Test (pytest)
         run: uv run pytest -q
 
