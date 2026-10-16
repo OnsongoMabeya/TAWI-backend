@@ -124,6 +124,208 @@ The permission rules themselves live in `app/permissions.py` as pure functions â
 unit-tested (positive and negative) in `tests/test_permissions.py`; the same matrix is exercised
 end-to-end in `tests/test_linking_and_sessions.py`.
 
+## API contract examples
+
+These examples reflect the current FastAPI contract and are the payloads the Android and iOS clients
+should expect to use. All auth-protected routes require an `Authorization: Bearer <access_token>`
+header.
+
+### `POST /auth/register`
+
+Request:
+
+```json
+{
+  "email": "listener@example.com",
+  "password": "StrongPass!123",
+  "role": "listener",
+  "date_of_birth": "2015-04-02",
+  "display_name": "Amina",
+  "consent_accepted": true,
+  "consent_given_by": "guardian",
+  "data_retention_preference": "standard"
+}
+```
+
+Response `201 Created`:
+
+```json
+{
+  "tokens": {
+    "access_token": "<jwt>",
+    "refresh_token": "<opaque-logout-token>",
+    "token_type": "bearer",
+    "access_token_expires_in": 900
+  },
+  "user": {
+    "id": "8d5ca988-4b7d-4a2d-b5ca-1f38b61d9c04",
+    "email": "listener@example.com",
+    "role": "listener",
+    "display_name": "Amina",
+    "date_of_birth": "2015-04-02",
+    "consent_given_at": "2026-10-16T12:00:00Z",
+    "consent_given_by": "guardian",
+    "data_retention_preference": "standard",
+    "created_at": "2026-10-16T12:00:00Z"
+  }
+}
+```
+
+### `POST /auth/login`
+
+Request:
+
+```json
+{
+  "email": "listener@example.com",
+  "password": "StrongPass!123"
+}
+```
+
+Response `200 OK`:
+
+```json
+{
+  "tokens": {
+    "access_token": "<jwt>",
+    "refresh_token": "<opaque-logout-token>",
+    "token_type": "bearer",
+    "access_token_expires_in": 900
+  },
+  "user": {
+    "id": "8d5ca988-4b7d-4a2d-b5ca-1f38b61d9c04",
+    "email": "listener@example.com",
+    "role": "listener",
+    "display_name": "Amina",
+    "date_of_birth": "2015-04-02",
+    "consent_given_at": "2026-10-16T12:00:00Z",
+    "consent_given_by": "guardian",
+    "data_retention_preference": "standard",
+    "created_at": "2026-10-16T12:00:00Z"
+  }
+}
+```
+
+### `POST /auth/refresh`
+
+Request:
+
+```json
+{
+  "refresh_token": "<previous-refresh-token>"
+}
+```
+
+Response `200 OK`:
+
+```json
+{
+  "access_token": "<new-jwt>",
+  "refresh_token": "<new-opaque-refresh-token>",
+  "token_type": "bearer",
+  "access_token_expires_in": 900
+}
+```
+
+Refresh rotation is mandatory: reusing a rotated token invalidates the family of refresh tokens.
+
+### `POST /auth/logout`
+
+Request:
+
+```json
+{
+  "refresh_token": "<refresh-token-to-revoke>"
+}
+```
+
+Response `204 No Content`.
+
+### `GET /users/me`
+
+Request headers:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+Response `200 OK`:
+
+```json
+{
+  "id": "8d5ca988-4b7d-4a2d-b5ca-1f38b61d9c04",
+  "email": "listener@example.com",
+  "role": "listener",
+  "display_name": "Amina",
+  "date_of_birth": "2015-04-02",
+  "consent_given_at": "2026-10-16T12:00:00Z",
+  "consent_given_by": "guardian",
+  "data_retention_preference": "standard",
+  "created_at": "2026-10-16T12:00:00Z"
+}
+```
+
+### `POST /users/me/link-codes`
+
+Request:
+
+```json
+{
+  "grants": "caregiver"
+}
+```
+
+Response `201 Created`:
+
+```json
+{
+  "code": "ABC2-9FRT",
+  "grants": "caregiver",
+  "expires_at": "2026-10-16T12:15:00Z"
+}
+```
+
+The code is returned once, then never stored. `grants` can be `caregiver` or `therapist`.
+
+### `POST /links/redeem`
+
+Request:
+
+```json
+{
+  "code": "ABC2-9FRT"
+}
+```
+
+Response `201 Created`:
+
+```json
+{
+  "listener_id": "8d5ca988-4b7d-4a2d-b5ca-1f38b61d9c04",
+  "kind": "caregiver",
+  "created_at": "2026-10-16T12:05:00Z"
+}
+```
+
+### `GET /users/{listener_id}/sessions`
+
+Request headers:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+Response `200 OK`:
+
+```json
+{
+  "listener_id": "8d5ca988-4b7d-4a2d-b5ca-1f38b61d9c04",
+  "sessions": []
+}
+```
+
+In Phase 2 the list is empty, but the permission enforcement and access checks are already in place.
+
 ## Continuous integration
 
 `.github/workflows/ci.yml` runs on every push and pull request, in two independent jobs:
